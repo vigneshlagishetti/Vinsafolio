@@ -1,6 +1,9 @@
-# Next-Gen Portfolio with AI Twin — Built with Next.js 16, Sanity CMS, Clerk & OpenAI's NEW AgentKit & ChatKit
+# Vinsafolio — Next‑Gen Portfolio with AI Twin (Next.js 16 + Sanity + Clerk + OpenAI)
 
 A stunning, AI-powered portfolio website featuring your **AI Twin** that represents you 24/7. Your digital clone answers questions about your experience, skills, and projects with intelligent, context-aware responses. Built with Next.js 16, Sanity CMS, Clerk authentication, and OpenAI ChatKit.
+
+> Project Title: **Vinsafolio**
+> Live Studio: https://vinsafolio.sanity.studio/
 
 > **Note:** This is a **Dual App Architecture** - You get TWO powerful applications in one repository:
 > 1. **Frontend Portfolio** - Your stunning public-facing portfolio with AI Twin
@@ -80,6 +83,18 @@ Create an OpenAI account at [OpenAI](https://openai.com) to power your AI Twin
   - 61 sample documents included - start with pre-populated content
 
 ### Technical Features
+
+## What We Did (Recent Changes)
+
+- Fixed invalid Sanity CLI scripts in `package.json`:
+  - Replaced `sanity schema check` (not a valid subcommand) with a clean workflow
+  - Updated `sanity:typegen` → `sanity typegen generate`
+  - Updated `schema:all` → `pnpm sanity:typegen && pnpm sanity:deploy`
+- Successfully ran `pnpm schema:all`:
+  - Generated types for 24 schema types and 14 GROQ queries → [sanity.types.ts](sanity.types.ts)
+  - Built and deployed Sanity Studio → https://vinsafolio.sanity.studio/
+- Added `deployment.appId` to `sanity.cli.ts` to avoid future deploy prompts
+- Verified deployed schemas with `sanity schema list` (workspace `default`, dataset `develop`)
 
 - **Next.js 16** with App Router and React 19
 - **Turbopack** for lightning-fast development builds
@@ -220,7 +235,21 @@ sanity dataset import navigation.ndjson production --replace
 
 ```bash
 # From project root
-npm run typegen
+pnpm typegen
+```
+
+8. Deploy Studio & schemas:
+
+```bash
+pnpm sanity:deploy
+# or run both typegen + deploy
+pnpm schema:all
+```
+
+9. List deployed schemas (confirmation):
+
+```bash
+sanity schema list
 ```
 
 ### 5) Configure OpenAI
@@ -264,8 +293,10 @@ npm start
 
 ```bash
 # Deploy Studio to Sanity's hosting
-sanity deploy
+pnpm sanity:deploy
 ```
+
+> Tip: You can set the Studio hostname during deploy, and avoid future prompts by setting `deployment.appId` in `sanity.cli.ts` (already configured).
 
 ## Sample Data
 
@@ -385,6 +416,15 @@ Ready to build production-ready applications like this Next-Gen Portfolio? Join 
 _Join thousands of developers who've transformed their careers with PAPAFAM!_
 
 ## 🏆 Take It Further - Challenge Time!
+
+## AgentBuilder & MCP (Developer Tooling)
+
+- **Prompts**: See `prompts/` for agent instructions (AI Twin with Sanity MCP, topic filters, guardrails)
+- **Byterover MCP**: Provides knowledge storage/retrieval for coding workflows (see `AGENTS.md` and `.github/copilot-instructions.md`)
+- **Usage Guidelines**:
+  - Retrieve knowledge before large changes
+  - Store knowledge after significant tasks (e.g., schema updates, CLI fixes)
+  - Keep schemas managed locally; deploy with `pnpm schema:all`
 
 ### AI Twin Enhancements
 - Train your AI Twin on custom conversation flows and FAQs
