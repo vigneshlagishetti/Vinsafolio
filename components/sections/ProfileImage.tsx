@@ -19,13 +19,22 @@ export function ProfileImage({
 }: ProfileImageProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { toggleSidebar, open } = useSidebar();
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const { openSignIn } = useClerk();
 
   return (
     <button
       type="button"
-      onClick={() => (isSignedIn ? toggleSidebar() : openSignIn())}
+      onClick={(e) => {
+        e.preventDefault();
+        // In dev, Clerk can briefly report signed-in while hooks hydrate.
+        // Guard against opening SignIn when a session exists.
+        if (isSignedIn || user) {
+          toggleSidebar();
+        } else {
+          openSignIn();
+        }
+      }}
       className="relative aspect-square rounded-2xl overflow-hidden border-4 border-primary/20 block group cursor-pointer w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

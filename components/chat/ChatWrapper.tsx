@@ -1,6 +1,8 @@
+"use client";
+import { useEffect, useState } from "react";
 import { defineQuery } from "next-sanity";
 import Chat from "@/components/chat/Chat";
-import { sanityFetch } from "@/sanity/lib/live";
+import { client } from "@/sanity/lib/client";
 import SidebarToggle from "../SidebarToggle";
 
 const CHAT_PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0]{
@@ -22,8 +24,23 @@ const CHAT_PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0]{
     profileImage
   }`);
 
-async function ChatWrapper() {
-  const { data: profile } = await sanityFetch({ query: CHAT_PROFILE_QUERY });
+function ChatWrapper() {
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    let active = true;
+    client
+      .fetch(CHAT_PROFILE_QUERY)
+      .then((data) => {
+        if (active) setProfile(data);
+      })
+      .catch(() => {
+        // fail silently in UI; Chat can handle null profile
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="h-full w-full">
