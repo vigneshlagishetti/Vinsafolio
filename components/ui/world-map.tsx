@@ -4,7 +4,7 @@ import DottedMap from "dotted-map";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface MapProps {
   dots?: Array<{
@@ -18,6 +18,10 @@ export default function WorldMap({
   dots = [],
   lineColor = "#0ea5e9",
 }: MapProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const svgRef = useRef<SVGSVGElement>(null);
   const map = new DottedMap({ height: 100, grid: "diagonal" });
 
@@ -51,6 +55,13 @@ export default function WorldMap({
     id: `dot-${dot.start.lat}-${dot.start.lng}-${dot.end.lat}-${dot.end.lng}-${i}`,
   }));
 
+  if (!mounted) {
+    // Avoid hydration mismatches by waiting until theme is resolved on client
+    return (
+      <div className="w-full aspect-[2/1] rounded-lg relative font-sans" aria-hidden />
+    );
+  }
+
   return (
     <div className="w-full aspect-[2/1] rounded-lg relative font-sans">
       <Image
@@ -60,6 +71,8 @@ export default function WorldMap({
         height={495}
         width={1056}
         draggable={false}
+        priority
+        suppressHydrationWarning
       />
       <svg
         ref={svgRef}
