@@ -10,7 +10,7 @@ const { sanityFetch, SanityLive } = defineLive({
   client,
   serverToken: process.env.SANITY_API_TOKEN,
   // Only enable browser live when explicitly set to avoid CDN timeouts
-  browserToken: enableBrowserLive ? process.env.SANITY_VIEWER_TOKEN : undefined,
+  browserToken: enableBrowserLive ? process.env.SANITY_VIEWER_TOKEN : false,
 });
 
 export { sanityFetch, SanityLive };
