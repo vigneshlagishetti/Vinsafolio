@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Bar, BarChart, LabelList, XAxis, YAxis } from "recharts";
 import {
   type ChartConfig,
@@ -22,17 +23,30 @@ interface SkillsChartProps {
 }
 
 export function SkillsChart({ skills }: SkillsChartProps) {
+  // Group skills by category dynamically
+  // Memoize to avoid re-computation on every render
+  const groupedSkills = useMemo(() => {
+    if (!skills) return new Map<string, Skill[]>();
+
+    const groups = new Map<string, Skill[]>();
+
+    for (const skill of skills) {
+      const category = skill.category || "other";
+      if (!groups.has(category)) {
+        groups.set(category, []);
+      }
+      // Using push is O(1) amortized, whereas spread syntax [...existing, skill] is O(N)
+      // This reduces the grouping complexity from O(N^2) to O(N)
+      const categorySkills = groups.get(category);
+      if (categorySkills) {
+        categorySkills.push(skill);
+      }
+    }
+    return groups;
+  }, [skills]);
+
   if (!skills || skills.length === 0) {
     return null;
-  }
-
-  // Group skills by category dynamically
-  const groupedSkills = new Map<string, Skill[]>();
-
-  for (const skill of skills) {
-    const category = skill.category || "other";
-    const existing = groupedSkills.get(category) || [];
-    groupedSkills.set(category, [...existing, skill]);
   }
 
   return (
