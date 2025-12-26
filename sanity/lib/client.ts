@@ -1,5 +1,3 @@
-
-
 import { createClient } from "next-sanity";
 
 import { apiVersion, dataset, projectId } from "../env";
@@ -14,7 +12,6 @@ export const client = createClient({
   },
   apiHost: "https://api.sanity.io",
 });
-
 
 // import { createClient } from "next-sanity";
 // import { dataset, projectId, apiVersion } from "../../sanity/env";
