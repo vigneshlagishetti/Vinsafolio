@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Bar, BarChart, LabelList, XAxis, YAxis } from "recharts";
 import {
   type ChartConfig,
@@ -22,17 +23,24 @@ interface SkillsChartProps {
 }
 
 export function SkillsChart({ skills }: SkillsChartProps) {
+  const groupedSkills = useMemo(() => {
+    if (!skills || skills.length === 0) {
+      return new Map<string, Skill[]>();
+    }
+
+    // Group skills by category dynamically
+    const map = new Map<string, Skill[]>();
+
+    for (const skill of skills) {
+      const category = skill.category || "other";
+      const existing = map.get(category) || [];
+      map.set(category, [...existing, skill]);
+    }
+    return map;
+  }, [skills]);
+
   if (!skills || skills.length === 0) {
     return null;
-  }
-
-  // Group skills by category dynamically
-  const groupedSkills = new Map<string, Skill[]>();
-
-  for (const skill of skills) {
-    const category = skill.category || "other";
-    const existing = groupedSkills.get(category) || [];
-    groupedSkills.set(category, [...existing, skill]);
   }
 
   return (
