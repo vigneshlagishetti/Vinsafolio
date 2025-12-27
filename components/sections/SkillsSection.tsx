@@ -1,6 +1,7 @@
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
-import { SkillsChart } from "./SkillsChart";
+// Use wrapper to lazy load the heavy SkillsChart client component
+import { SkillsChartWrapper } from "./SkillsChartWrapper";
 
 const SKILLS_QUERY =
   defineQuery(`*[_type == "skill"] | order(category asc, order asc){
@@ -32,7 +33,7 @@ export async function SkillsSection() {
           </p>
         </div>
 
-        <SkillsChart skills={skills} />
+        <SkillsChartWrapper skills={skills} />
       </div>
     </section>
   );
