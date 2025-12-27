@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
 import { defineQuery } from "next-sanity";
+import { useEffect, useState } from "react";
 import Chat from "@/components/chat/Chat";
 import { client } from "@/sanity/lib/client";
 import SidebarToggle from "../SidebarToggle";

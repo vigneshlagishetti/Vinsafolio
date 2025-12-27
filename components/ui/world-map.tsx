@@ -58,7 +58,10 @@ export default function WorldMap({
   if (!mounted) {
     // Avoid hydration mismatches by waiting until theme is resolved on client
     return (
-      <div className="w-full aspect-[2/1] rounded-lg relative font-sans" aria-hidden />
+      <div
+        className="w-full aspect-[2/1] rounded-lg relative font-sans"
+        aria-hidden
+      />
     );
   }
 
