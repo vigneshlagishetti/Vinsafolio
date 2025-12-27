@@ -7,6 +7,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useMemo } from "react";
 
 interface Skill {
   name: string | null;
@@ -26,57 +27,73 @@ export function SkillsChart({ skills }: SkillsChartProps) {
     return null;
   }
 
-  // Group skills by category dynamically
-  const groupedSkills = new Map<string, Skill[]>();
+  // Optimize performance: Memoize the data transformation to prevent expensive
+  // recalculations on every render. This includes grouping skills, formatting labels,
+  // and preparing chart configurations.
+  const chartGroups = useMemo(() => {
+    // Group skills by category dynamically
+    const groups = new Map<string, Skill[]>();
 
-  for (const skill of skills) {
-    const category = skill.category || "other";
-    const existing = groupedSkills.get(category) || [];
-    groupedSkills.set(category, [...existing, skill]);
-  }
+    for (const skill of skills) {
+      const category = skill.category || "other";
+      const existing = groups.get(category) || [];
+      groups.set(category, [...existing, skill]);
+    }
+
+    return Array.from(groups.entries()).map(([category, categorySkills]) => {
+      // Format category for display
+      const displayLabel = category
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
+      // Prepare chart data and config
+      const chartData = categorySkills.map((skill) => ({
+        name: skill.name || "Unknown",
+        proficiency: skill.percentage || 0,
+        fill: skill.color || "var(--color-default)",
+      }));
+
+      const chartConfig = {
+        proficiency: {
+          label: "Proficiency",
+          color: "hsl(var(--primary))",
+        },
+        default: {
+          color: "hsl(var(--primary))",
+        },
+      } satisfies ChartConfig;
+
+      // Calculate dynamic height based on number of skills
+      const chartHeight = Math.max(140, categorySkills.length * 32);
+
+      return {
+        category,
+        displayLabel,
+        count: categorySkills.length,
+        chartData,
+        chartConfig,
+        chartHeight,
+      };
+    });
+  }, [skills]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {Array.from(groupedSkills.entries()).map(([category, categorySkills]) => {
-        if (!categorySkills || categorySkills.length === 0) return null;
-
-        // Format category for display
-        const displayLabel = category
-          .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
-
-        // Prepare chart data and config
-        const chartData = categorySkills.map((skill) => ({
-          name: skill.name || "Unknown",
-          proficiency: skill.percentage || 0,
-          fill: skill.color || "var(--color-default)",
-        }));
-
-        const chartConfig = {
-          proficiency: {
-            label: "Proficiency",
-            color: "hsl(var(--primary))",
-          },
-          default: {
-            color: "hsl(var(--primary))",
-          },
-        } satisfies ChartConfig;
-
-        // Calculate dynamic height based on number of skills
-        const chartHeight = Math.max(140, categorySkills.length * 32);
+      {chartGroups.map((group) => {
+        if (group.count === 0) return null;
 
         return (
           <div
-            key={category}
+            key={group.category}
             className="group rounded-xl border bg-card overflow-hidden transition-all hover:shadow-lg hover:border-primary/50"
           >
             {/* Category Header */}
             <div className="border-b bg-muted/50 px-4 py-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{displayLabel}</h3>
+                <h3 className="text-lg font-semibold">{group.displayLabel}</h3>
                 <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                  {categorySkills.length}
+                  {group.count}
                 </span>
               </div>
             </div>
@@ -84,14 +101,14 @@ export function SkillsChart({ skills }: SkillsChartProps) {
             {/* Chart */}
             <div className="p-4">
               <ChartContainer
-                id={`skills-chart-${category}`}
-                config={chartConfig}
+                id={`skills-chart-${group.category}`}
+                config={group.chartConfig}
                 className="w-full"
-                style={{ height: `${chartHeight}px` }}
+                style={{ height: `${group.chartHeight}px` }}
               >
                 <BarChart
                   accessibilityLayer
-                  data={chartData}
+                  data={group.chartData}
                   layout="vertical"
                   margin={{
                     left: 0,
